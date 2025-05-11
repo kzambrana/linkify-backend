@@ -1,0 +1,57 @@
+package com.linkify.linkify_be.controller;
+
+import com.linkify.linkify_be.api.CreateLinkRequest;
+import com.linkify.linkify_be.dto.LinkResponseDTO;
+import com.linkify.linkify_be.service.LinkService;
+
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@RestController
+@RequestMapping("/api/profiles/{profileId}/links")
+@Tag(name = "Link Controller", description = "Operations related to links management")
+public class LinkController {
+
+    private final LinkService linkService;
+
+    @Autowired  
+    public LinkController(LinkService linkService) {
+        this.linkService = linkService;
+    }
+
+    @Operation(summary = "Get all links for a profile")
+    @GetMapping
+    public ResponseEntity<List<LinkResponseDTO>> getLinks(@PathVariable Long profileId) {
+        return new ResponseEntity<>(linkService.getLinksByProfile(profileId), HttpStatus.OK);
+    }
+
+    @Operation(summary = "Create a new link for a profile")
+    @PostMapping
+    public ResponseEntity<LinkResponseDTO> createLink(@PathVariable Long profileId,
+            @RequestBody @Valid CreateLinkRequest request) {
+        return new ResponseEntity<>(linkService.createLink(profileId, request), HttpStatus.CREATED);
+    }
+
+    @Operation(summary = "Update an existing link")
+    @PutMapping("/{linkId}")
+    public ResponseEntity<LinkResponseDTO> updateLink(@PathVariable Long profileId,
+            @PathVariable Long linkId,
+            @RequestBody CreateLinkRequest request) {
+        return new ResponseEntity<>(linkService.updateLink(linkId, request), HttpStatus.OK);
+    }
+
+    @Operation(summary = "Delete a link")
+    @DeleteMapping("/{linkId}")
+    public ResponseEntity<Void> deleteLink(@PathVariable Long profileId, @PathVariable Long linkId) {
+        linkService.deleteLink(linkId);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+}
