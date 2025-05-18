@@ -19,18 +19,14 @@ public class Link {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private String id;
 
-    @NotBlank(message = "Platform cannot be empty")
     private String platform;
 
-    @NotBlank(message = "Link cannot be empty")
     private String link;
 
-    @NotBlank(message = "Icon path cannot be empty")
     private String iconPath;
 
-    @NotBlank(message = "Color cannot be empty")
     private String color;
 
     @ManyToOne(fetch = FetchType.LAZY)

@@ -33,11 +33,11 @@ public class LinkController {
         return new ResponseEntity<>(linkService.getLinksByProfile(profileId), HttpStatus.OK);
     }
 
-    @Operation(summary = "Create a new link for a profile")
+    @Operation(summary = "Create new links for a profile")
     @PostMapping
-    public ResponseEntity<LinkResponseDTO> createLink(@PathVariable Long profileId,
-            @RequestBody @Valid CreateLinkRequest request) {
-        return new ResponseEntity<>(linkService.createLink(profileId, request), HttpStatus.CREATED);
+    public ResponseEntity<List<LinkResponseDTO>> createLinks(@PathVariable Long profileId,
+            @RequestBody @Valid CreateLinkRequest[] request) {
+        return new ResponseEntity<>(linkService.createLinks(profileId, request), HttpStatus.CREATED);
     }
 
     @Operation(summary = "Update an existing link")
@@ -50,7 +50,7 @@ public class LinkController {
 
     @Operation(summary = "Delete a link")
     @DeleteMapping("/{linkId}")
-    public ResponseEntity<Void> deleteLink(@PathVariable Long profileId, @PathVariable Long linkId) {
+    public ResponseEntity<Void> deleteLink(@PathVariable Long profileId, @PathVariable String linkId) {
         linkService.deleteLink(linkId);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }

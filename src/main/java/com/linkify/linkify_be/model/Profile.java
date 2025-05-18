@@ -1,7 +1,6 @@
 package com.linkify.linkify_be.model;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 
 import java.util.List;
@@ -21,16 +20,14 @@ public class Profile {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
-  @NotBlank(message = "First name cannot be empty")
   private String firstName;
 
-  @NotBlank(message = "Last name cannot be empty")
   private String lastName;
 
-  @NotBlank(message = "Email cannot be empty")
   private String email;
 
-  @NotBlank(message = "Image cannot be empty")
+  @Lob
+  @Column(columnDefinition = "TEXT")
   private String image;
 
   @OneToMany(mappedBy = "profile", cascade = CascadeType.ALL, orphanRemoval = true)
