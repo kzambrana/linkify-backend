@@ -9,6 +9,7 @@ import com.linkify.linkify_be.repository.ProfileRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -32,12 +33,19 @@ public class LinkService {
                 .orElseThrow(() -> new IllegalArgumentException("Profile not found"));
     }
 
-    public LinkResponseDTO createLink(Long profileId, CreateLinkRequest request) {
+    public List<LinkResponseDTO> createLinks(Long profileId, CreateLinkRequest[] requests) {
         Profile profile = profileRepository.findById(profileId)
                 .orElseThrow(() -> new IllegalArgumentException("Profile not found"));
-        Link link = toEntity(request, profile);
 
-        return toDto(linkRepository.save(link));
+        List<Link> links = Arrays.stream(requests)
+                .map(req -> toEntity(req, profile))
+                .collect(Collectors.toList());
+
+        List<Link> savedLinks = linkRepository.saveAll(links);
+
+        return savedLinks.stream()
+                .map(this::toDto)
+                .collect(Collectors.toList());
     }
 
     public LinkResponseDTO updateLink(Long linkId, CreateLinkRequest request) {
@@ -52,7 +60,7 @@ public class LinkService {
         return toDto(linkRepository.save(existing));
     }
 
-    public void deleteLink(Long linkId) {
+    public void deleteLink(String linkId) {
         linkRepository.deleteById(linkId);
     }
 
