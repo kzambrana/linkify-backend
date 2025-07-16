@@ -1,17 +1,20 @@
 package com.linkify.linkify_be.service;
 
 import com.linkify.linkify_be.api.CreateLinkRequest;
+import com.linkify.linkify_be.api.UpdateLinkRequest;
 import com.linkify.linkify_be.dto.LinkResponseDTO;
 import com.linkify.linkify_be.model.Link;
 import com.linkify.linkify_be.model.Profile;
 import com.linkify.linkify_be.repository.LinkRepository;
 import com.linkify.linkify_be.repository.ProfileRepository;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.Optional;
 
 @Service
 public class LinkService {
@@ -48,16 +51,38 @@ public class LinkService {
                 .collect(Collectors.toList());
     }
 
-    public LinkResponseDTO updateLink(Long linkId, CreateLinkRequest request) {
-        Link existing = linkRepository.findById(linkId)
-                .orElseThrow(() -> new IllegalArgumentException("Link not found"));
+    public List<LinkResponseDTO> updateLinks(Long profileId, UpdateLinkRequest[] requests) {
+        Profile profile = profileRepository.findById(profileId)
+                .orElseThrow(() -> new IllegalArgumentException("Profile not found"));
 
-        existing.setPlatform(request.getPlatform());
-        existing.setLink(request.getLink());
-        existing.setIconPath(request.getIconPath());
-        existing.setColor(request.getColor());
+        List<Link> updatedLinks = Arrays.stream(requests)
+                .map(req -> {
+                    Optional<Link> existingLinkOptional = linkRepository.findById(req.getId());
+                    if (existingLinkOptional.isEmpty()) {
+                        throw new IllegalArgumentException(
+                                "Link with ID " + req.getId() + " not found for profile " + profileId);
+                    }
+                    Link existingLink = existingLinkOptional.get();
 
-        return toDto(linkRepository.save(existing));
+                    if (!existingLink.getProfile().getId().equals(profileId)) {
+                        throw new IllegalArgumentException(
+                                "Link with ID " + req.getId() + " does not belong to profile " + profileId);
+                    }
+
+                    existingLink.setPlatform(req.getPlatform());
+                    existingLink.setLink(req.getLink());
+                    existingLink.setIconPath(req.getIconPath());
+                    existingLink.setColor(req.getColor());
+
+                    return existingLink;
+                })
+                .collect(Collectors.toList());
+
+        List<Link> savedLinks = linkRepository.saveAll(updatedLinks);
+
+        return savedLinks.stream()
+                .map(this::toDto)
+                .collect(Collectors.toList());
     }
 
     public void deleteLink(String linkId) {
