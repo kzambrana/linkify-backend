@@ -1,6 +1,7 @@
 package com.linkify.linkify_be.controller;
 
 import com.linkify.linkify_be.api.CreateLinkRequest;
+import com.linkify.linkify_be.api.UpdateLinkRequest;
 import com.linkify.linkify_be.dto.LinkResponseDTO;
 import com.linkify.linkify_be.service.LinkService;
 
@@ -40,12 +41,12 @@ public class LinkController {
         return new ResponseEntity<>(linkService.createLinks(profileId, request), HttpStatus.CREATED);
     }
 
-    @Operation(summary = "Update an existing link")
-    @PutMapping("/{linkId}")
-    public ResponseEntity<LinkResponseDTO> updateLink(@PathVariable Long profileId,
-            @PathVariable Long linkId,
-            @RequestBody CreateLinkRequest request) {
-        return new ResponseEntity<>(linkService.updateLink(linkId, request), HttpStatus.OK);
+    @Operation(summary = "Update links for a profile")
+    @PutMapping()
+    public ResponseEntity<List<LinkResponseDTO>> updateLinks(@PathVariable Long profileId,
+            @RequestBody UpdateLinkRequest[] requests) {
+        List<LinkResponseDTO> updatedLinks = linkService.updateLinks(profileId, requests);
+        return ResponseEntity.ok(updatedLinks);
     }
 
     @Operation(summary = "Delete a link")
